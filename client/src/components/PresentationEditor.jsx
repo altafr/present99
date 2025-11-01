@@ -324,6 +324,49 @@ function PresentationEditor({ presentation, onBack, onUpdatePresentation }) {
                 </div>
                 <span>Image + Text</span>
               </div>
+              <div 
+                className={`layout-option ${currentSlide.layout === 'big-image' ? 'active' : ''}`}
+                onClick={() => handleChangeLayout('big-image')}
+              >
+                <div className="layout-preview layout-big-image">
+                  <div className="preview-title"></div>
+                  <div className="preview-big-image"></div>
+                </div>
+                <span>Big Image</span>
+              </div>
+              <div 
+                className={`layout-option ${currentSlide.layout === 'quote' ? 'active' : ''}`}
+                onClick={() => handleChangeLayout('quote')}
+              >
+                <div className="layout-preview layout-quote">
+                  <div className="preview-quote-icon"></div>
+                  <div className="preview-quote-text"></div>
+                </div>
+                <span>Quote</span>
+              </div>
+              <div 
+                className={`layout-option ${currentSlide.layout === 'section-header' ? 'active' : ''}`}
+                onClick={() => handleChangeLayout('section-header')}
+              >
+                <div className="layout-preview layout-section-header">
+                  <div className="preview-section-number"></div>
+                  <div className="preview-section-title"></div>
+                </div>
+                <span>Section</span>
+              </div>
+              <div 
+                className={`layout-option ${currentSlide.layout === 'comparison' ? 'active' : ''}`}
+                onClick={() => handleChangeLayout('comparison')}
+              >
+                <div className="layout-preview layout-comparison">
+                  <div className="preview-title"></div>
+                  <div className="preview-comparison-cols">
+                    <div></div>
+                    <div></div>
+                  </div>
+                </div>
+                <span>Comparison</span>
+              </div>
             </div>
             <button className="close-picker-btn" onClick={() => setSelectedLayout(null)}>
               Close

@@ -191,6 +191,7 @@ Rules:
 });
 
 // Generate image using Replicate Flux
+// Generate single image with timeout handling
 app.post('/api/generate-image', async (req, res) => {
   try {
     const { prompt, slideId } = req.body;
@@ -199,45 +200,84 @@ app.post('/api/generate-image', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    if (replicate) {
-      try {
-        console.log(`Generating image for slide ${slideId}: ${prompt}`);
-        
-        const output = await replicate.run(
-          "black-forest-labs/flux-schnell",
-          {
-            input: {
-              prompt: prompt,
-              num_outputs: 1,
-              aspect_ratio: "16:9",
-              output_format: "webp",
-              output_quality: 80
-            }
-          }
-        );
-
-        // Flux returns an array of URLs
-        const imageUrl = Array.isArray(output) ? output[0] : output;
-        
-        console.log(`Image generated successfully: ${imageUrl}`);
-        return res.json({ imageUrl });
-      } catch (replicateError) {
-        console.error('Replicate API error:', replicateError);
-        return res.status(500).json({ 
-          error: 'Failed to generate image',
-          details: replicateError.message 
-        });
-      }
-    } else {
+    if (!replicate) {
       console.log('No Replicate token configured');
       return res.status(503).json({ 
         error: 'Image generation not configured',
         message: 'Set REPLICATE_API_TOKEN to enable image generation'
       });
     }
+
+    try {
+      console.log(`Generating image for slide ${slideId}: ${prompt}`);
+      
+      // Use predictions.create for better control
+      const prediction = await replicate.predictions.create({
+        version: "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637",
+        input: {
+          prompt: prompt,
+          num_outputs: 1,
+          aspect_ratio: "16:9",
+          output_format: "webp",
+          output_quality: 80,
+          go_fast: true
+        }
+      });
+
+      // Return prediction ID for client-side polling
+      return res.json({ 
+        predictionId: prediction.id,
+        status: prediction.status,
+        slideId: slideId
+      });
+    } catch (replicateError) {
+      console.error('Replicate API error:', replicateError);
+      return res.status(500).json({ 
+        error: 'Failed to generate image',
+        details: replicateError.message 
+      });
+    }
   } catch (error) {
     console.error('Error generating image:', error);
     res.status(500).json({ error: 'Failed to generate image' });
+  }
+});
+
+// Check image generation status
+app.get('/api/image-status/:predictionId', async (req, res) => {
+  try {
+    const { predictionId } = req.params;
+
+    if (!replicate) {
+      return res.status(503).json({ 
+        error: 'Image generation not configured'
+      });
+    }
+
+    const prediction = await replicate.predictions.get(predictionId);
+    
+    if (prediction.status === 'succeeded') {
+      const imageUrl = Array.isArray(prediction.output) 
+        ? prediction.output[0] 
+        : prediction.output;
+      
+      return res.json({ 
+        status: 'succeeded',
+        imageUrl: imageUrl
+      });
+    } else if (prediction.status === 'failed') {
+      return res.json({ 
+        status: 'failed',
+        error: prediction.error
+      });
+    } else {
+      return res.json({ 
+        status: prediction.status // processing, starting, etc.
+      });
+    }
+  } catch (error) {
+    console.error('Error checking image status:', error);
+    res.status(500).json({ error: 'Failed to check image status' });
   }
 });
 
@@ -257,47 +297,47 @@ app.post('/api/generate-images-batch', async (req, res) => {
       });
     }
 
-    const imagePromises = slides.map(async (slide) => {
+    // Start predictions for all slides (non-blocking)
+    const predictions = [];
+    
+    for (const slide of slides) {
       if (!slide.imagePrompt) {
-        return { slideId: slide.id, imageUrl: null };
+        predictions.push({ slideId: slide.id, predictionId: null, status: 'skipped' });
+        continue;
       }
 
       try {
-        console.log(`Generating image for slide ${slide.id}: ${slide.imagePrompt.substring(0, 50)}...`);
+        console.log(`Starting image generation for slide ${slide.id}: ${slide.imagePrompt.substring(0, 50)}...`);
         
-        const output = await replicate.run(
-          "black-forest-labs/flux-schnell",
-          {
-            input: {
-              prompt: slide.imagePrompt,
-              num_outputs: 1,
-              aspect_ratio: "16:9",
-              output_format: "webp",
-              output_quality: 80
-            }
+        const prediction = await replicate.predictions.create({
+          version: "5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637",
+          input: {
+            prompt: slide.imagePrompt,
+            num_outputs: 1,
+            aspect_ratio: "16:9",
+            output_format: "webp",
+            output_quality: 80,
+            go_fast: true
           }
-        );
-
-        // Replicate returns an array of URLs or a single URL
-        let imageUrl = null;
-        if (Array.isArray(output) && output.length > 0) {
-          imageUrl = output[0];
-        } else if (typeof output === 'string') {
-          imageUrl = output;
-        } else if (output && output.url) {
-          imageUrl = output.url;
-        }
+        });
         
-        console.log(`Image generated for slide ${slide.id}: ${imageUrl ? 'Success' : 'Failed'}`);
-        return { slideId: slide.id, imageUrl };
+        predictions.push({ 
+          slideId: slide.id, 
+          predictionId: prediction.id,
+          status: prediction.status
+        });
       } catch (error) {
-        console.error(`Error generating image for slide ${slide.id}:`, error.message);
-        return { slideId: slide.id, imageUrl: null, error: error.message };
+        console.error(`Error starting image generation for slide ${slide.id}:`, error.message);
+        predictions.push({ 
+          slideId: slide.id, 
+          predictionId: null, 
+          status: 'failed',
+          error: error.message 
+        });
       }
-    });
+    }
 
-    const results = await Promise.all(imagePromises);
-    return res.json({ images: results });
+    return res.json({ predictions });
   } catch (error) {
     console.error('Error in batch image generation:', error);
     res.status(500).json({ error: 'Failed to generate images' });
