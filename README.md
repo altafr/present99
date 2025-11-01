@@ -102,9 +102,12 @@ present99/
 │   │   │   ├── HomePage.jsx
 │   │   │   ├── PresentationEditor.jsx
 │   │   │   ├── SlideCanvas.jsx
-│   │   │   └── SlideEditor.jsx
+│   │   │   ├── SlideEditor.jsx
+│   │   │   ├── ThemeSelector.jsx
+│   │   │   └── PresentationLibrary.jsx
 │   │   ├── utils/         # Utility functions
-│   │   │   └── export.js
+│   │   │   ├── export.js
+│   │   │   └── storage.js
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   └── package.json
@@ -114,6 +117,26 @@ present99/
 │   ├── .env.example      # Environment variables template
 │   └── package.json
 │
+├── api/                   # Vercel serverless functions
+│   └── [...path].js      # API route handler
+│
+├── tests/                 # Automated test suite
+│   ├── vercel-deployment.test.js  # Deployment tests
+│   ├── package.json
+│   └── README.md
+│
+├── docs/                  # Documentation
+│   ├── QUICKSTART.md
+│   ├── USER_GUIDE.md
+│   ├── DEPLOYMENT_GUIDE.md
+│   └── ... (other docs)
+│
+├── scripts/               # Utility scripts
+│   ├── git-push.sh       # GitHub deployment
+│   ├── deploy.sh         # Vercel deployment
+│   └── ... (other scripts)
+│
+├── vercel.json           # Vercel configuration
 └── README.md
 ```
 
@@ -213,20 +236,35 @@ Check server health and AI status.
 
 ## 🧪 Testing
 
-Present99 includes a comprehensive test suite to ensure quality:
+Present99 includes a comprehensive automated test suite for the Vercel deployment:
 
-- **Manual Tests**: 20 detailed test cases in `TEST_SUITE.md`
-- **Automated API Tests**: Run with `cd server && npm test`
-- **Interactive UI Tests**: Open `client/test-ui.html` in browser
-- **Full Documentation**: See `TESTING.md` for complete guide
+### Automated Deployment Tests
 
-**Quick test:**
+**22 automated tests** covering:
+- Frontend accessibility and assets
+- API health and configuration
+- Presentation generation
+- Error handling
+- CORS configuration
+- Performance benchmarks
+- Image generation
+- Full integration flow
+
+**Run tests:**
 ```bash
-cd server
-npm test
+cd tests
+npm install
+npm run test:production  # Test production deployment
+npm run test:local       # Test local development
 ```
 
-See `TEST_SUMMARY.md` for overview of all testing capabilities.
+See `tests/README.md` for complete testing documentation.
+
+### Additional Testing
+
+- **Manual Tests**: See `docs/TEST_SUITE.md` for manual test cases
+- **API Tests**: `cd server && npm test`
+- **UI Tests**: Open `client/test-ui.html` in browser
 
 ## 🚧 Future Enhancements
 

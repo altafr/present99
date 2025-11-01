@@ -1,0 +1,16 @@
+{
+  "name": "present99-tests",
+  "version": "1.0.0",
+  "description": "Test suite for Present99 Vercel deployment",
+  "main": "vercel-deployment.test.js",
+  "scripts": {
+    "test": "node vercel-deployment.test.js",
+    "test:production": "TEST_URL=https://present99.vercel.app node vercel-deployment.test.js",
+    "test:local": "TEST_URL=http://localhost:5173 node vercel-deployment.test.js"
+  },
+  "dependencies": {
+    "axios": "^1.13.0"
+  },
+  "author": "altafr",
+  "license": "MIT"
+}
