@@ -121,7 +121,40 @@ function PresentationEditor({ presentation, onBack, onUpdatePresentation }) {
   const handleExportPDF = async () => {
     try {
       setShowExportMenu(false);
+      
+      // Show all slides temporarily for export
+      const allSlidesContainer = document.createElement('div');
+      allSlidesContainer.style.position = 'fixed';
+      allSlidesContainer.style.left = '-9999px';
+      allSlidesContainer.style.top = '0';
+      allSlidesContainer.style.width = '1920px';
+      allSlidesContainer.style.height = '1080px';
+      document.body.appendChild(allSlidesContainer);
+      
+      // Render all slides
+      const { createRoot } = await import('react-dom/client');
+      const root = createRoot(allSlidesContainer);
+      
+      await new Promise((resolve) => {
+        root.render(
+          <>
+            {slides.map(slide => (
+              <div key={slide.id} style={{ width: '1920px', height: '1080px', position: 'relative' }}>
+                <SlideCanvas slide={slide} theme={currentTheme} />
+              </div>
+            ))}
+          </>
+        );
+        // Wait for render
+        setTimeout(resolve, 1000);
+      });
+      
+      // Export PDF
       await exportToPDF(slides, presentation.topic);
+      
+      // Cleanup
+      root.unmount();
+      document.body.removeChild(allSlidesContainer);
     } catch (error) {
       console.error('Error exporting PDF:', error);
       alert('Failed to export PDF. Please try again.');
