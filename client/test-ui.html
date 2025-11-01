@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Present99 UI Test Suite</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #6366f1;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+
+    .test-section {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #334155;
+    }
+
+    .test-section h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      color: #818cf8;
+    }
+
+    .test-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: #0f172a;
+      border-radius: 6px;
+      border-left: 3px solid #334155;
+    }
+
+    .test-item.pass {
+      border-left-color: #10b981;
+    }
+
+    .test-item.fail {
+      border-left-color: #ef4444;
+    }
+
+    .test-item.pending {
+      border-left-color: #f59e0b;
+    }
+
+    .checkbox {
+      margin-right: 1rem;
+      margin-top: 0.25rem;
+      cursor: pointer;
+    }
+
+    .test-content {
+      flex: 1;
+    }
+
+    .test-title {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .test-description {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+
+    .test-steps {
+      margin-top: 0.5rem;
+      padding-left: 1rem;
+      font-size: 0.875rem;
+      color: #cbd5e1;
+    }
+
+    .test-steps li {
+      margin-bottom: 0.25rem;
+    }
+
+    .summary {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      border: 2px solid #6366f1;
+    }
+
+    .summary h2 {
+      color: #6366f1;
+      margin-bottom: 1rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat {
+      background: #0f172a;
+      padding: 1rem;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    .stat.passed .stat-value { color: #10b981; }
+    .stat.failed .stat-value { color: #ef4444; }
+    .stat.pending .stat-value { color: #f59e0b; }
+
+    button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background: #4f46e5;
+    }
+
+    button.secondary {
+      background: #334155;
+    }
+
+    button.secondary:hover {
+      background: #475569;
+    }
+
+    .instructions {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .instructions h3 {
+      color: #818cf8;
+      margin-bottom: 0.5rem;
+    }
+
+    .instructions p {
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #334155;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Present99 UI Test Suite</h1>
+    <p class="subtitle">Interactive testing checklist for frontend functionality</p>
+
+    <div class="instructions">
+      <h3>📋 How to Use This Test Suite</h3>
+      <p>
+        1. Make sure the app is running at <strong>http://localhost:5173</strong><br>
+        2. Open the app in another tab<br>
+        3. Follow each test step and check the box when completed<br>
+        4. Tests turn green (✓) when passed, red (✗) when failed<br>
+        5. Use "Reset All" to start over
+      </p>
+    </div>
+
+    <!-- Test Sections -->
+    <div class="test-section">
+      <h2>🏠 Home Page Tests</h2>
+      
+      <div class="test-item pending" data-test="home-load">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Home Page Loads</div>
+          <div class="test-description">Verify the home page loads without errors</div>
+          <ul class="test-steps">
+            <li>Navigate to http://localhost:5173</li>
+            <li>Check for "Present99" logo and title</li>
+            <li>Verify form elements are visible</li>
+            <li>Check browser console for errors (F12)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="form-validation">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Form Validation</div>
+          <div class="test-description">Test empty topic validation</div>
+          <ul class="test-steps">
+            <li>Leave topic field empty</li>
+            <li>Click "Generate Presentation"</li>
+            <li>Verify error message appears</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="form-inputs">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Form Inputs Work</div>
+          <div class="test-description">All form controls are functional</div>
+          <ul class="test-steps">
+            <li>Type in topic field</li>
+            <li>Change slide count dropdown</li>
+            <li>Change tone dropdown</li>
+            <li>Verify all inputs respond</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎨 Presentation Generation</h2>
+      
+      <div class="test-item pending" data-test="generate-mock">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Generate with Mock Data</div>
+          <div class="test-description">Test generation without API keys</div>
+          <ul class="test-steps">
+            <li>Enter topic: "Artificial Intelligence"</li>
+            <li>Select 5 slides</li>
+            <li>Click "Generate Presentation"</li>
+            <li>Verify slides are created</li>
+            <li>Check content is relevant to topic</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="generate-ai">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Generate with AI (if configured)</div>
+          <div class="test-description">Test with OpenRouter + Replicate</div>
+          <ul class="test-steps">
+            <li>Ensure API keys are configured</li>
+            <li>Enter topic: "Climate Change"</li>
+            <li>Watch for "Generating images..." message</li>
+            <li>Verify images appear on slides</li>
+            <li>Check content quality</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="loading-states">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Loading States</div>
+          <div class="test-description">Button shows loading feedback</div>
+          <ul class="test-steps">
+            <li>Start generation</li>
+            <li>Verify button is disabled</li>
+            <li>Check for spinner icon</li>
+            <li>Verify loading message updates</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>📝 Editor Functionality</h2>
+      
+      <div class="test-item pending" data-test="slide-navigation">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Slide Navigation</div>
+          <div class="test-description">Navigate between slides</div>
+          <ul class="test-steps">
+            <li>Click right arrow to go forward</li>
+            <li>Click left arrow to go back</li>
+            <li>Click thumbnails in sidebar</li>
+            <li>Verify slide counter updates</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="edit-content">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Edit Slide Content</div>
+          <div class="test-description">Modify slide text</div>
+          <ul class="test-steps">
+            <li>Select a content slide</li>
+            <li>Change title in right sidebar</li>
+            <li>Edit bullet points</li>
+            <li>Verify changes appear on canvas</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="add-remove-bullets">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Add/Remove Bullets</div>
+          <div class="test-description">Manage bullet points</div>
+          <ul class="test-steps">
+            <li>Click "Add Point" button</li>
+            <li>Verify new bullet appears</li>
+            <li>Click trash icon on a bullet</li>
+            <li>Verify bullet is removed</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="change-layout">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Change Layout</div>
+          <div class="test-description">Switch between layout types</div>
+          <ul class="test-steps">
+            <li>Click layout button in toolbar</li>
+            <li>Select "Two Column" layout</li>
+            <li>Verify content adapts</li>
+            <li>Try other layouts</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="add-slide">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Add New Slide</div>
+          <div class="test-description">Create additional slides</div>
+          <ul class="test-steps">
+            <li>Click + button in toolbar</li>
+            <li>Verify new slide appears</li>
+            <li>Check slide count increases</li>
+            <li>Verify you're navigated to new slide</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="delete-slide">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Delete Slide</div>
+          <div class="test-description">Remove slides</div>
+          <ul class="test-steps">
+            <li>Navigate to any slide (not last)</li>
+            <li>Click trash icon in toolbar</li>
+            <li>Verify slide is removed</li>
+            <li>Check can't delete last slide</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🖼️ Image Display</h2>
+      
+      <div class="test-item pending" data-test="images-load">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Images Load Correctly</div>
+          <div class="test-description">AI-generated images display properly</div>
+          <ul class="test-steps">
+            <li>Generate presentation with AI enabled</li>
+            <li>Find slide with "image-text" layout</li>
+            <li>Verify image appears on left side</li>
+            <li>Check image is not broken</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="background-images">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Background Images</div>
+          <div class="test-description">Slides have background images</div>
+          <ul class="test-steps">
+            <li>Navigate through slides</li>
+            <li>Check title/content slides for backgrounds</li>
+            <li>Verify text is still readable</li>
+            <li>Check gradient overlay is applied</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="image-fallback">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Image Fallback</div>
+          <div class="test-description">Placeholders show when images fail</div>
+          <ul class="test-steps">
+            <li>Generate without Replicate token</li>
+            <li>Check image-text slides</li>
+            <li>Verify placeholder icon appears</li>
+            <li>Confirm app doesn't crash</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>📤 Export Functionality</h2>
+      
+      <div class="test-item pending" data-test="pdf-export">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">PDF Export</div>
+          <div class="test-description">Export presentation as PDF</div>
+          <ul class="test-steps">
+            <li>Click "Export PDF" button</li>
+            <li>Wait for download</li>
+            <li>Open PDF file</li>
+            <li>Verify all slides are present</li>
+            <li>Check images are included</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="pdf-quality">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">PDF Quality</div>
+          <div class="test-description">Exported PDF looks good</div>
+          <ul class="test-steps">
+            <li>Open exported PDF</li>
+            <li>Check text is readable</li>
+            <li>Verify layouts are preserved</li>
+            <li>Confirm colors look correct</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🔄 Navigation & State</h2>
+      
+      <div class="test-item pending" data-test="back-to-home">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Back to Home</div>
+          <div class="test-description">Return to home page</div>
+          <ul class="test-steps">
+            <li>Click back arrow in top-left</li>
+            <li>Verify home page loads</li>
+            <li>Check form is reset</li>
+            <li>Confirm previous presentation cleared</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="state-persistence">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">State Persistence</div>
+          <div class="test-description">Edits persist during session</div>
+          <ul class="test-steps">
+            <li>Edit a slide</li>
+            <li>Navigate to another slide</li>
+            <li>Return to edited slide</li>
+            <li>Verify changes are still there</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>📱 Responsive Design</h2>
+      
+      <div class="test-item pending" data-test="mobile-view">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Mobile View</div>
+          <div class="test-description">Works on mobile devices</div>
+          <ul class="test-steps">
+            <li>Open DevTools (F12)</li>
+            <li>Toggle device toolbar</li>
+            <li>Select iPhone or Android</li>
+            <li>Test navigation and editing</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="tablet-view">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Tablet View</div>
+          <div class="test-description">Works on tablets</div>
+          <ul class="test-steps">
+            <li>Set viewport to iPad size</li>
+            <li>Check layout adapts</li>
+            <li>Verify all features accessible</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>⚠️ Error Handling</h2>
+      
+      <div class="test-item pending" data-test="server-down">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">Server Offline</div>
+          <div class="test-description">Handles server errors gracefully</div>
+          <ul class="test-steps">
+            <li>Stop backend server</li>
+            <li>Try to generate presentation</li>
+            <li>Verify error message appears</li>
+            <li>Confirm app doesn't crash</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="test-item pending" data-test="console-errors">
+        <input type="checkbox" class="checkbox" onchange="updateTest(this, 'pass')">
+        <div class="test-content">
+          <div class="test-title">No Console Errors</div>
+          <div class="test-description">Clean console during normal use</div>
+          <ul class="test-steps">
+            <li>Open browser console (F12)</li>
+            <li>Use app normally</li>
+            <li>Check for red errors</li>
+            <li>Warnings are OK, errors are not</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary">
+      <h2>📊 Test Summary</h2>
+      <div class="stats">
+        <div class="stat passed">
+          <div class="stat-value" id="passed-count">0</div>
+          <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat failed">
+          <div class="stat-value" id="failed-count">0</div>
+          <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat pending">
+          <div class="stat-value" id="pending-count">24</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="total-count">24</div>
+          <div class="stat-label">Total</div>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+      <div>
+        <button onclick="resetAll()">Reset All</button>
+        <button class="secondary" onclick="markAllPassed()">Mark All Passed</button>
+        <button class="secondary" onclick="exportResults()">Export Results</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateTest(checkbox, status) {
+      const testItem = checkbox.closest('.test-item');
+      testItem.classList.remove('pending', 'pass', 'fail');
+      testItem.classList.add(checkbox.checked ? status : 'pending');
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const total = document.querySelectorAll('.test-item').length;
+      const passed = document.querySelectorAll('.test-item.pass').length;
+      const failed = document.querySelectorAll('.test-item.fail').length;
+      const pending = total - passed - failed;
+
+      document.getElementById('passed-count').textContent = passed;
+      document.getElementById('failed-count').textContent = failed;
+      document.getElementById('pending-count').textContent = pending;
+      document.getElementById('total-count').textContent = total;
+
+      const progress = (passed / total) * 100;
+      document.getElementById('progress-fill').style.width = progress + '%';
+    }
+
+    function resetAll() {
+      document.querySelectorAll('.checkbox').forEach(cb => {
+        cb.checked = false;
+        const testItem = cb.closest('.test-item');
+        testItem.classList.remove('pass', 'fail');
+        testItem.classList.add('pending');
+      });
+      updateSummary();
+    }
+
+    function markAllPassed() {
+      document.querySelectorAll('.checkbox').forEach(cb => {
+        cb.checked = true;
+        const testItem = cb.closest('.test-item');
+        testItem.classList.remove('pending', 'fail');
+        testItem.classList.add('pass');
+      });
+      updateSummary();
+    }
+
+    function exportResults() {
+      const results = [];
+      document.querySelectorAll('.test-item').forEach(item => {
+        const title = item.querySelector('.test-title').textContent;
+        const status = item.classList.contains('pass') ? 'PASS' : 
+                      item.classList.contains('fail') ? 'FAIL' : 'PENDING';
+        results.push(`${status}: ${title}`);
+      });
+
+      const text = `Present99 UI Test Results\n` +
+                   `Date: ${new Date().toLocaleString()}\n\n` +
+                   results.join('\n') +
+                   `\n\nSummary:\n` +
+                   `Passed: ${document.getElementById('passed-count').textContent}\n` +
+                   `Failed: ${document.getElementById('failed-count').textContent}\n` +
+                   `Pending: ${document.getElementById('pending-count').textContent}\n` +
+                   `Total: ${document.getElementById('total-count').textContent}`;
+
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'present99-test-results.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Initialize
+    updateSummary();
+  </script>
+</body>
+</html>
