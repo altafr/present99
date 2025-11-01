@@ -1,0 +1,9 @@
+#!/bin/bash
+# Cascade Environment Setup
+# Source this file before running commands: source .cascade-env
+
+# Add common binary paths
+export PATH="/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
+
+echo "✅ Environment configured for Cascade"
+echo "PATH: $PATH"
