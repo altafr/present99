@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set PATH to include common binary locations
+# Set PATH to include common binary location
 export PATH="/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
 
 # Git Push Helper for Cascade
