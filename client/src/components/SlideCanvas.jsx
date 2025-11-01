@@ -1,6 +1,15 @@
+import { useState } from 'react';
+import { RefreshCw } from 'lucide-react';
+import axios from 'axios';
 import './SlideCanvas.css';
 
-function SlideCanvas({ slide, theme }) {
+const API_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'production' 
+    ? `${window.location.origin}/api`
+    : 'http://localhost:3001/api');
+
+function SlideCanvas({ slide, theme, onRegenerateImage }) {
+  const [regenerating, setRegenerating] = useState(false);
   const defaultTheme = {
     gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     textColor: '#ffffff',
@@ -8,6 +17,66 @@ function SlideCanvas({ slide, theme }) {
   };
   
   const activeTheme = theme || defaultTheme;
+
+  const handleRegenerateImage = async () => {
+    if (!slide.imagePrompt || regenerating) return;
+    
+    setRegenerating(true);
+    console.log('Regenerating image for slide:', slide.id);
+    
+    try {
+      // Start image generation
+      const response = await axios.post(`${API_URL}/generate-image`, {
+        prompt: slide.imagePrompt,
+        slideId: slide.id
+      });
+      
+      const { predictionId } = response.data;
+      console.log('Image regeneration started:', predictionId);
+      
+      // Poll for completion
+      pollImageStatus(predictionId);
+    } catch (error) {
+      console.error('Failed to regenerate image:', error);
+      setRegenerating(false);
+    }
+  };
+
+  const pollImageStatus = async (predictionId) => {
+    const maxAttempts = 30;
+    let attempts = 0;
+
+    const poll = async () => {
+      try {
+        attempts++;
+        const statusResponse = await axios.get(`${API_URL}/image-status/${predictionId}`);
+        const { status, imageUrl } = statusResponse.data;
+
+        if (status === 'succeeded' && imageUrl) {
+          console.log('Image regenerated successfully:', imageUrl);
+          // Trigger event to update slide
+          window.dispatchEvent(new CustomEvent('slideImageReady', {
+            detail: { slideId: slide.id, imageUrl }
+          }));
+          setRegenerating(false);
+        } else if (status === 'failed') {
+          console.error('Image regeneration failed');
+          setRegenerating(false);
+        } else if (attempts < maxAttempts) {
+          setTimeout(poll, 2000);
+        } else {
+          console.warn('Image regeneration timed out');
+          setRegenerating(false);
+        }
+      } catch (error) {
+        console.error('Error polling image status:', error);
+        setRegenerating(false);
+      }
+    };
+
+    setTimeout(poll, 3000);
+  };
+
   const renderContent = () => {
     switch (slide.layout) {
       case 'title':
@@ -71,7 +140,17 @@ function SlideCanvas({ slide, theme }) {
                     <circle cx="8.5" cy="8.5" r="1.5"/>
                     <polyline points="21 15 16 10 5 21"/>
                   </svg>
-                  <span>Image</span>
+                  <span>{regenerating ? 'Generating...' : 'Image'}</span>
+                  {slide.imagePrompt && !regenerating && (
+                    <button 
+                      className="regenerate-btn"
+                      onClick={handleRegenerateImage}
+                      title="Generate image"
+                    >
+                      <RefreshCw size={16} />
+                      Generate
+                    </button>
+                  )}
                 </div>
               )}
               <ul className="slide-list">
@@ -98,7 +177,17 @@ function SlideCanvas({ slide, theme }) {
                   <circle cx="8.5" cy="8.5" r="1.5"/>
                   <polyline points="21 15 16 10 5 21"/>
                 </svg>
-                <span>Large Image</span>
+                <span>{regenerating ? 'Generating...' : 'Large Image'}</span>
+                {slide.imagePrompt && !regenerating && (
+                  <button 
+                    className="regenerate-btn"
+                    onClick={handleRegenerateImage}
+                    title="Generate image"
+                  >
+                    <RefreshCw size={16} />
+                    Generate
+                  </button>
+                )}
               </div>
             )}
             {slide.content && slide.content[0] && (

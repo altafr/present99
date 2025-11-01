@@ -54,28 +54,12 @@ function HomePage({ onCreatePresentation }) {
 
       const slides = response.data.slides;
       
-      // Generate images for slides
-      setLoadingMessage('Generating images with Flux AI...');
-      try {
-        const imageResponse = await axios.post(`${API_URL}/generate-images-batch`, {
-          slides
-        });
-
-        // Map images to slides
-        const slidesWithImages = slides.map(slide => {
-          const imageData = imageResponse.data.images.find(img => img.slideId === slide.id);
-          return {
-            ...slide,
-            imageUrl: imageData?.imageUrl || null
-          };
-        });
-
-        onCreatePresentation(slidesWithImages, topic);
-      } catch (imageErr) {
-        console.warn('Image generation failed, proceeding without images:', imageErr);
-        // Proceed with slides even if image generation fails
-        onCreatePresentation(slides, topic);
-      }
+      // Start with slides without images
+      onCreatePresentation(slides, topic);
+      
+      // Generate images asynchronously
+      setLoadingMessage('Starting image generation...');
+      generateImagesAsync(slides);
     } catch (err) {
       console.error('Error generating presentation:', err);
       console.error('Error details:', {
@@ -94,6 +78,74 @@ function HomePage({ onCreatePresentation }) {
   const handleLoadPresentation = (presentation) => {
     // Pass the existing ID to prevent creating a new one
     onCreatePresentation(presentation.slides, presentation.topic, presentation.id);
+  };
+
+  // Async image generation with polling
+  const generateImagesAsync = async (slides) => {
+    try {
+      console.log('Starting batch image generation for', slides.length, 'slides');
+      
+      // Start image generation for all slides
+      const batchResponse = await axios.post(`${API_URL}/generate-images-batch`, {
+        slides
+      });
+
+      const predictions = batchResponse.data.predictions;
+      console.log('Image predictions started:', predictions);
+
+      // Poll for each image
+      predictions.forEach(prediction => {
+        if (prediction.predictionId) {
+          pollImageStatus(prediction.predictionId, prediction.slideId);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to start image generation:', error);
+    }
+  };
+
+  // Poll for image completion
+  const pollImageStatus = async (predictionId, slideId) => {
+    const maxAttempts = 30; // 30 attempts = ~60 seconds
+    let attempts = 0;
+
+    const poll = async () => {
+      try {
+        attempts++;
+        console.log(`Polling image status for slide ${slideId}, attempt ${attempts}`);
+        
+        const statusResponse = await axios.get(`${API_URL}/image-status/${predictionId}`);
+        const { status, imageUrl, error } = statusResponse.data;
+
+        console.log(`Slide ${slideId} status:`, status);
+
+        if (status === 'succeeded' && imageUrl) {
+          console.log(`Image ready for slide ${slideId}:`, imageUrl);
+          // Update the slide with the image URL
+          updateSlideImage(slideId, imageUrl);
+        } else if (status === 'failed') {
+          console.error(`Image generation failed for slide ${slideId}:`, error);
+        } else if (attempts < maxAttempts) {
+          // Still processing, poll again in 2 seconds
+          setTimeout(poll, 2000);
+        } else {
+          console.warn(`Image generation timed out for slide ${slideId}`);
+        }
+      } catch (error) {
+        console.error(`Error polling image status for slide ${slideId}:`, error);
+      }
+    };
+
+    // Start polling after 3 seconds (give Replicate time to start)
+    setTimeout(poll, 3000);
+  };
+
+  // Update slide with generated image
+  const updateSlideImage = (slideId, imageUrl) => {
+    // Trigger a custom event that PresentationEditor can listen to
+    window.dispatchEvent(new CustomEvent('slideImageReady', {
+      detail: { slideId, imageUrl }
+    }));
   };
 
   return (

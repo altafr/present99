@@ -30,6 +30,25 @@ function PresentationEditor({ presentation, onBack, onUpdatePresentation }) {
   const [currentTheme, setCurrentTheme] = useState(presentation.theme || THEMES[0]);
   const saveTimeoutRef = useRef(null);
 
+  // Listen for image ready events from HomePage
+  useEffect(() => {
+    const handleImageReady = (event) => {
+      const { slideId, imageUrl } = event.detail;
+      console.log('Image ready event received for slide:', slideId, imageUrl);
+      
+      setSlides(prevSlides => 
+        prevSlides.map(slide => 
+          slide.id === slideId 
+            ? { ...slide, imageUrl, imageGenerating: false }
+            : slide
+        )
+      );
+    };
+
+    window.addEventListener('slideImageReady', handleImageReady);
+    return () => window.removeEventListener('slideImageReady', handleImageReady);
+  }, []);
+
   // Auto-save to IndexedDB with debounce
   useEffect(() => {
     if (!presentation.id) return; // Don't save if no ID yet
