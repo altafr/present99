@@ -1,0 +1,8 @@
+{
+  "name": "present99-api",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "replicate": "^0.34.1"
+  }
+}
