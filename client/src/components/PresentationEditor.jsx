@@ -11,13 +11,15 @@ import {
   Image as ImageIcon,
   Save,
   FileText,
-  Palette
+  Palette,
+  Play
 } from 'lucide-react';
 import SlideCanvas from './SlideCanvas';
 import SlideEditor from './SlideEditor';
 import ThemeSelector, { THEMES } from './ThemeSelector';
 import { exportToPDF, exportToPPTX } from '../utils/export';
 import { savePresentation } from '../utils/storage';
+import { openRevealPresentation } from '../utils/revealGenerator';
 import './PresentationEditor.css';
 
 function PresentationEditor({ presentation, onBack, onUpdatePresentation }) {
@@ -207,6 +209,10 @@ function PresentationEditor({ presentation, onBack, onUpdatePresentation }) {
     }
   };
 
+  const handlePresent = () => {
+    openRevealPresentation(slides, currentTheme, presentation.topic);
+  };
+
   return (
     <div className="editor-page">
       <header className="editor-header">
@@ -217,6 +223,10 @@ function PresentationEditor({ presentation, onBack, onUpdatePresentation }) {
           <h2 className="presentation-title">{presentation.topic}</h2>
         </div>
         <div className="header-right">
+          <button className="present-btn" onClick={handlePresent} title="Present with Reveal.js">
+            <Play size={20} />
+            Present
+          </button>
           <button className="icon-btn" onClick={() => setSelectedLayout('picker')} title="Change layout">
             <Layout size={20} />
           </button>
