@@ -4,13 +4,26 @@ import './ThemeSelector.css';
 
 const THEMES = [
   {
+    id: 'clean-white',
+    name: 'Clean White',
+    gradient: '#ffffff',
+    primaryColor: '#4f46e5',
+    secondaryColor: '#6366f1',
+    textColor: '#1f2937',
+    headerBg: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+    headerText: '#ffffff',
+    font: 'Inter, sans-serif',
+    hasHeader: true
+  },
+  {
     id: 'purple-gradient',
     name: 'Purple Gradient',
     gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     primaryColor: '#667eea',
     secondaryColor: '#764ba2',
     textColor: '#ffffff',
-    font: 'Inter, sans-serif'
+    font: 'Inter, sans-serif',
+    hasHeader: false
   },
   {
     id: 'blue-ocean',
@@ -19,7 +32,8 @@ const THEMES = [
     primaryColor: '#2193b0',
     secondaryColor: '#6dd5ed',
     textColor: '#ffffff',
-    font: 'Inter, sans-serif'
+    font: 'Inter, sans-serif',
+    hasHeader: false
   },
   {
     id: 'sunset',
@@ -28,7 +42,8 @@ const THEMES = [
     primaryColor: '#f093fb',
     secondaryColor: '#f5576c',
     textColor: '#ffffff',
-    font: 'Inter, sans-serif'
+    font: 'Inter, sans-serif',
+    hasHeader: false
   },
   {
     id: 'forest',
@@ -37,7 +52,8 @@ const THEMES = [
     primaryColor: '#11998e',
     secondaryColor: '#38ef7d',
     textColor: '#ffffff',
-    font: 'Inter, sans-serif'
+    font: 'Inter, sans-serif',
+    hasHeader: false
   },
   {
     id: 'fire',
@@ -46,7 +62,8 @@ const THEMES = [
     primaryColor: '#f12711',
     secondaryColor: '#f5af19',
     textColor: '#ffffff',
-    font: 'Inter, sans-serif'
+    font: 'Inter, sans-serif',
+    hasHeader: false
   },
   {
     id: 'midnight',
@@ -55,7 +72,8 @@ const THEMES = [
     primaryColor: '#0f2027',
     secondaryColor: '#2c5364',
     textColor: '#ffffff',
-    font: 'Inter, sans-serif'
+    font: 'Inter, sans-serif',
+    hasHeader: false
   },
   {
     id: 'professional',
@@ -64,7 +82,8 @@ const THEMES = [
     primaryColor: '#1e3c72',
     secondaryColor: '#2a5298',
     textColor: '#ffffff',
-    font: 'Georgia, serif'
+    font: 'Georgia, serif',
+    hasHeader: false
   },
   {
     id: 'modern',
@@ -73,7 +92,8 @@ const THEMES = [
     primaryColor: '#141E30',
     secondaryColor: '#243B55',
     textColor: '#ffffff',
-    font: 'Helvetica, sans-serif'
+    font: 'Helvetica, sans-serif',
+    hasHeader: false
   }
 ];
 

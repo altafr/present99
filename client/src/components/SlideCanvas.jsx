@@ -92,7 +92,7 @@ function SlideCanvas({ slide, theme, onRegenerateImage }) {
       case 'content':
         return (
           <div className="slide-layout slide-content">
-            <h2 className="slide-heading">{slide.title}</h2>
+            {!activeTheme.hasHeader && <h2 className="slide-heading">{slide.title}</h2>}
             <ul className="slide-list">
               {slide.content && slide.content.map((item, index) => (
                 <li key={index}>{item}</li>
@@ -108,7 +108,7 @@ function SlideCanvas({ slide, theme, onRegenerateImage }) {
         
         return (
           <div className="slide-layout slide-two-column">
-            <h2 className="slide-heading">{slide.title}</h2>
+            {!activeTheme.hasHeader && <h2 className="slide-heading">{slide.title}</h2>}
             <div className="two-column-container">
               <ul className="slide-list">
                 {leftContent.map((item, index) => (
@@ -127,7 +127,7 @@ function SlideCanvas({ slide, theme, onRegenerateImage }) {
       case 'image-text':
         return (
           <div className="slide-layout slide-image-text">
-            <h2 className="slide-heading">{slide.title}</h2>
+            {!activeTheme.hasHeader && <h2 className="slide-heading">{slide.title}</h2>}
             <div className="image-text-container">
               {slide.imageUrl ? (
                 <div className="slide-image-container">
@@ -165,7 +165,7 @@ function SlideCanvas({ slide, theme, onRegenerateImage }) {
       case 'big-image':
         return (
           <div className="slide-layout slide-big-image">
-            <h2 className="slide-heading">{slide.title}</h2>
+            {!activeTheme.hasHeader && <h2 className="slide-heading">{slide.title}</h2>}
             {slide.imageUrl ? (
               <div className="big-image-container">
                 <img src={slide.imageUrl} alt={slide.title} className="big-image" />
@@ -230,7 +230,7 @@ function SlideCanvas({ slide, theme, onRegenerateImage }) {
         
         return (
           <div className="slide-layout slide-comparison">
-            <h2 className="slide-heading">{slide.title}</h2>
+            {!activeTheme.hasHeader && <h2 className="slide-heading">{slide.title}</h2>}
             <div className="comparison-container">
               <div className="comparison-column">
                 <h3 className="comparison-header">{slide.leftHeader || 'Option A'}</h3>
@@ -256,7 +256,7 @@ function SlideCanvas({ slide, theme, onRegenerateImage }) {
       default:
         return (
           <div className="slide-layout slide-content">
-            <h2 className="slide-heading">{slide.title}</h2>
+            {!activeTheme.hasHeader && <h2 className="slide-heading">{slide.title}</h2>}
             {slide.content && (
               <ul className="slide-list">
                 {slide.content.map((item, index) => (
@@ -271,20 +271,28 @@ function SlideCanvas({ slide, theme, onRegenerateImage }) {
 
   return (
     <div 
-      className="slide-canvas" 
+      className={`slide-canvas ${activeTheme.hasHeader ? 'has-header' : ''}`}
       id={`slide-${slide.id}`}
       style={{
-        background: slide.imageUrl && slide.layout !== 'image-text' 
-          ? `${activeTheme.gradient}, url(${slide.imageUrl})`
-          : activeTheme.gradient,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundBlendMode: slide.imageUrl ? 'overlay' : 'normal',
+        background: activeTheme.gradient,
         color: activeTheme.textColor,
         fontFamily: activeTheme.font
       }}
     >
-      {renderContent()}
+      {activeTheme.hasHeader && slide.layout !== 'title' && (
+        <div 
+          className="slide-header"
+          style={{
+            background: activeTheme.headerBg,
+            color: activeTheme.headerText
+          }}
+        >
+          <h3 className="header-title">{slide.title}</h3>
+        </div>
+      )}
+      <div className={`slide-content-wrapper ${activeTheme.hasHeader && slide.layout !== 'title' ? 'with-header' : ''}`}>
+        {renderContent()}
+      </div>
       <div className="slide-footer">
         <span className="slide-number">{slide.id}</span>
       </div>

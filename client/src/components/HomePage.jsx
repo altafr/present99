@@ -83,11 +83,22 @@ function HomePage({ onCreatePresentation }) {
   // Async image generation with polling
   const generateImagesAsync = async (slides) => {
     try {
-      console.log('Starting batch image generation for', slides.length, 'slides');
+      // Only generate images for layouts that need them
+      const imageLayouts = ['image-text', 'big-image'];
+      const slidesNeedingImages = slides.filter(slide => 
+        imageLayouts.includes(slide.layout) && slide.imagePrompt
+      );
+
+      if (slidesNeedingImages.length === 0) {
+        console.log('No slides need images');
+        return;
+      }
+
+      console.log('Starting image generation for', slidesNeedingImages.length, 'slides with image layouts');
       
-      // Start image generation for all slides
+      // Start image generation only for slides that need images
       const batchResponse = await axios.post(`${API_URL}/generate-images-batch`, {
-        slides
+        slides: slidesNeedingImages
       });
 
       const predictions = batchResponse.data.predictions;
